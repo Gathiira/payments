@@ -14,6 +14,11 @@ urlpatterns = [
         name="transaction-stkpush-callback",
     ),
     path(
+        "stkpush/<int:account_number>/query-status",
+        daraja_views.MpesaStkPushCallbackView.as_view(),
+        name="transaction-stkpush-query-status",
+    ),
+    path(
         'c2b-register-urls',
         daraja_views.MpesaRegisterUrlView.as_view(),
         name='c2b-register-urls'
@@ -27,5 +32,5 @@ urlpatterns = [
         'c2b-confirmation-url',
         daraja_views.MpesaConfirmationUrlView.as_view(),
         name='c2b-confirmation-url'
-    )
+    ),
 ]

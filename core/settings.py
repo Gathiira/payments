@@ -130,7 +130,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-API_HOST_NAME = 'http://localhost:9000'
+API_HOST_NAME = os.environ.get('API_HOST_NAME')
 
 # payment configs
 PAYBILL_NUMBER = 1234

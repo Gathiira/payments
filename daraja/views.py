@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from daraja.facade import MpesaTransaction
 from utils.core import validate_phone_number
 from payments.utils import PaymentProcessor
+from daraja.serializers import StkPushSerializer
 
 
 PaymentMethod = get_model("payments", "PaymentMethod")
@@ -138,6 +139,147 @@ def create_transaction_instance(**kwargs):
             data, account_number=kwargs["account_number"]
         )
     return transaction
+
+
+class RiderOrderCollectPaymentView(views.APIView):
+    def post(self, request, order_number, format=None):
+        """
+        initiates mpesa stk push for riders
+        Args:
+            request:
+
+        Returns:
+            200: if success
+            400: in case of error or fails
+        """
+        try:
+            Order.objects.filter(number=order_number)
+        except ObjectDoesNotExist:
+            return Response(
+                {"message": "Invalid order number"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        payload = request.data
+        serializer = StkPushSerializer(data=payload, many=False)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        data = serializer.validated_data
+        payment_category = "Checkout"
+        payment_method = PaymentMethod.objects.filter(
+            type=PaymentMethod.MOBILE, islog=False
+        ).first()
+        account_number = generate_account_number()
+        pay_amount = data["amount"]
+        narration = f"Payment for  a {payment_category} of order {order_number}"
+        phone_number = data["phone_number"]
+        # create an instance of Transaction
+        transaction_payload = {
+            "account_number": account_number,
+            "provider": "702",
+            "merchant_id": "SKYGDN0001",  # fetch merchant id from order number
+            "order_number": order_number,
+            "phone_number": phone_number,
+            # "transaction_ref": "702", null to be added on save
+            "transaction_type": "mobile",
+            "terminal_type": "WEB",
+            "terminal": "1",
+            "currency": "KES",
+            "country": "KE",
+            "method": payment_method,
+            "payment_code": "MMO",
+            "narration": narration,
+            "nonce": get_random_string(16),
+            "status": "Initiated",  # also set by default
+            "amount": round(float(pay_amount)),
+            # "amount_paid": "amount_paid", # to be set by the callback.
+            "transaction_is_log": False,
+            "payment_method_name": "Mpesa Express",
+            # "provider_reference": 'to be set by callback',
+            # "customer": "",  can be set incase of topups or delivery
+            "payment_category": payment_category,
+        }
+        with db_transaction.atomic():
+            logger.info(transaction_payload)
+            transaction = Transaction(**transaction_payload)
+            transaction.save()
+
+            # build callback url
+            base_url = settings.API_HOST_NAME
+            transaction_url = reverse(
+                "transaction-stkpush-callback",
+                kwargs={"account_number": account_number},
+            )
+            callback_url = base_url + transaction_url
+
+            logger.info(callback_url)
+            # https://dev-api.sky.garden/api/v3/transaction-stkpush/872547/callback/
+
+            query_url = reverse(
+                "transaction-stkpush-query-status",
+                kwargs={"account_number": account_number},
+            )
+            status_url = base_url + query_url
+
+            accountref = order_number or "SKY.GARDEN"
+            desc = data.get("description") or narration
+            stk_data = {
+                "callbackurl": callback_url,
+                "accountref": accountref,
+                "transaction_desc": desc,
+                "amount": pay_amount,
+                "phone_number": phone_number[1:],
+            }
+            mpesa_transaction = MpesaTransaction()
+            mpesa_request = mpesa_transaction.lipa_na_mpesa_online(**stk_data)
+            response_data = mpesa_request.json()
+            logger.info(response_data)
+            if mpesa_request.status_code != 200:
+                db_transaction.set_rollback(True)
+                return Response(
+                    {"message": "Failed to initiate stk push. Try again later"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            transaction.merchant_id = response_data["MerchantRequestID"]
+            transaction.checkout_request_id = response_data["CheckoutRequestID"]
+            transaction.save(
+                update_fields=["merchant_id", "checkout_request_id"])
+
+        # wait for mpesa transactions to happen and return appropriate response
+        # max wait is 90 sec with 10 loops. Then return a failed response
+        def await_transaction(await_period):
+            while await_period < 20:
+                time.sleep(await_period)
+                transaction.refresh_from_db()
+                if transaction.status in ["Successful"]:
+                    break
+                elif transaction.status not in ["Initiated"]:
+                    break
+                else:
+                    await_period += 2
+            return
+
+        async_wait = Thread(target=await_transaction, args=(2,))
+        async_wait.start()
+        async_wait.join()
+
+        transaction.refresh_from_db()
+        if transaction.status not in ["Successful"]:
+            error_msg = transaction.error_message or "Transaction Failed!!"
+            return Response(
+                {
+                    "message": error_msg,
+                    "query_status_url": status_url,
+                    "amount_paid": 0,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        resp = {
+            "message": "Transaction successful",
+            "query_status_url": status_url,
+            "amount_paid": transaction.amount_paid,
+        }
+        return Response(resp)
 
 
 class MpesaStkPushCallbackView(views.APIView):
