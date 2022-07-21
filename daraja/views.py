@@ -164,9 +164,8 @@ class InitiateStkPushView(views.APIView):
         payment_method, _ = PaymentMethod.objects.get_or_create(
             type=PaymentMethod.MOBILE, islog=False
         )
-        print('payment method --> ', payment_method)
         pay_amount = data["amount"]
-        narration = f"Payment for  a {payment_category} of order {account_number}"
+        narration = f"Payment for  a transaction {account_number}"
         phone_number = data["phone_number"]
         # create an instance of Transaction
         transaction_payload = {

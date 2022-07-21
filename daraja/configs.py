@@ -1,6 +1,6 @@
 import os
 
-SERVER = os.environ.get("SKY_ENV", "local")
+SERVER = os.environ.get("CODE_ENV", "local")
 # SERVER = "production"  # activate this field to test locally with prod configs
 
 
@@ -19,19 +19,19 @@ class DarajaConfigs:
         )
 
         self.DARAJA_CONSUMER_KEY = (
-            os.environ.get("DARAJA-LIVE-KEY")
+            os.environ.get("DARAJA_LIVE_CONSUMER_KEY")
             if self.is_prod
             else os.environ.get("DARAJA_SANDBOX_CONSUMER_KEY")
         )
 
         self.DARAJA_CONSUMER_SECRET = (
-            os.environ.get("DARAJA-LIVE-SECRET")
+            os.environ.get("DARAJA_LIVE_CONSUMER_SECRET")
             if self.is_prod
             else os.environ.get("DARAJA_SANDBOX_CONSUMER_SECRET")
         )
 
         self.DARAJA_PASS_KEY = (
-            os.environ.get("DARAJA-LIVE-PASSKEY")
+            os.environ.get("DARAJA_LIVE_PASS_KEY")
             if self.is_prod
             else os.environ.get("DARAJA_SANDBOX_PASS_KEY")
         )

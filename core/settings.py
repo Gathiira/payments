@@ -111,7 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Nairobi'
 
 USE_I18N = True
 
@@ -169,7 +169,7 @@ LOGGING = {
         }
     },
     'root': {
-        'handlers': ['console'],
+        'handlers': ['console', 'logfile'],
         'level': min_level,  # this level or higher goes to the console,
     },
 }
