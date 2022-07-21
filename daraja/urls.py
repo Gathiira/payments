@@ -4,8 +4,8 @@ from daraja import views as daraja_views
 
 urlpatterns = [
     path(
-        'initiate-stkpush',
-        daraja_views.MpesaRegisterUrlView.as_view(),
+        'initiate-stkpush/<int:account_number>/',
+        daraja_views.InitiateStkPushView.as_view(),
         name='daraja-initiate-stkpush'
     ),
     path(

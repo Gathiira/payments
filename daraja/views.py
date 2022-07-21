@@ -1,4 +1,6 @@
 import logging
+import time
+from threading import Thread
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -141,8 +143,8 @@ def create_transaction_instance(**kwargs):
     return transaction
 
 
-class RiderOrderCollectPaymentView(views.APIView):
-    def post(self, request, order_number, format=None):
+class InitiateStkPushView(views.APIView):
+    def post(self, request, account_number, format=None):
         """
         initiates mpesa stk push for riders
         Args:
@@ -152,13 +154,6 @@ class RiderOrderCollectPaymentView(views.APIView):
             200: if success
             400: in case of error or fails
         """
-        try:
-            Order.objects.filter(number=order_number)
-        except ObjectDoesNotExist:
-            return Response(
-                {"message": "Invalid order number"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
         payload = request.data
         serializer = StkPushSerializer(data=payload, many=False)
         if not serializer.is_valid():
@@ -166,37 +161,24 @@ class RiderOrderCollectPaymentView(views.APIView):
 
         data = serializer.validated_data
         payment_category = "Checkout"
-        payment_method = PaymentMethod.objects.filter(
+        payment_method, _ = PaymentMethod.objects.get_or_create(
             type=PaymentMethod.MOBILE, islog=False
-        ).first()
-        account_number = generate_account_number()
+        )
+        print('payment method --> ', payment_method)
         pay_amount = data["amount"]
-        narration = f"Payment for  a {payment_category} of order {order_number}"
+        narration = f"Payment for  a {payment_category} of order {account_number}"
         phone_number = data["phone_number"]
         # create an instance of Transaction
         transaction_payload = {
             "account_number": account_number,
             "provider": "702",
-            "merchant_id": "SKYGDN0001",  # fetch merchant id from order number
-            "order_number": order_number,
             "phone_number": phone_number,
-            # "transaction_ref": "702", null to be added on save
-            "transaction_type": "mobile",
-            "terminal_type": "WEB",
-            "terminal": "1",
             "currency": "KES",
             "country": "KE",
             "method": payment_method,
-            "payment_code": "MMO",
             "narration": narration,
-            "nonce": get_random_string(16),
-            "status": "Initiated",  # also set by default
             "amount": round(float(pay_amount)),
-            # "amount_paid": "amount_paid", # to be set by the callback.
             "transaction_is_log": False,
-            "payment_method_name": "Mpesa Express",
-            # "provider_reference": 'to be set by callback',
-            # "customer": "",  can be set incase of topups or delivery
             "payment_category": payment_category,
         }
         with db_transaction.atomic():
@@ -221,7 +203,7 @@ class RiderOrderCollectPaymentView(views.APIView):
             )
             status_url = base_url + query_url
 
-            accountref = order_number or "SKY.GARDEN"
+            accountref = account_number
             desc = data.get("description") or narration
             stk_data = {
                 "callbackurl": callback_url,
