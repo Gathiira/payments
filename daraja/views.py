@@ -16,11 +16,11 @@ from utils.core import validate_phone_number
 from payments.utils import PaymentProcessor
 
 
-PaymentMethod = get_model("interswitch", "PaymentMethod")
-Transaction = get_model("interswitch", "Transaction")
-TransactionLog = get_model("interswitch", "TransactionLog")
+PaymentMethod = get_model("payments", "PaymentMethod")
+Transaction = get_model("payments", "Transaction")
+TransactionLog = get_model("payments", "TransactionLog")
 
-logger = logging.getLogger("sky.log")
+logger = logging.getLogger(__name__)
 
 
 def generate_account_number():
@@ -48,14 +48,12 @@ def get_transaction_payload(amount, method, number=None):
     Returns:
 
     """
-    generated_number = random_available_order_number()
     data = {
         "amount": amount,
         "provider": method.code,
         "islog": method.islog,
         "method": method.id,
         "payment_method_name": method.name,
-        "order_number": number or generated_number,
         "phone_number": "",
         "transaction_type": Transaction.MOBILE,
         "payment_method": Transaction.PAYBILL,
@@ -272,15 +270,15 @@ class MpesaRegisterUrlView(views.APIView):
     mpesa register urls i.e validation url and confirmation url
     """
 
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
         # _payload = request.data
-        server_url = settings.SKYGARDEN_API_HOST_NAME
-        validation_url = server_url[:-1] + \
-            reverse("transaction-validate-mpesa-payment")
-        confirmation_url = server_url[:-1] + reverse(
-            "transaction-confirm-mpesa-payment"
+        server_url = settings.API_HOST_NAME
+        validation_url = server_url + \
+            reverse("c2b-validation-url")
+        confirmation_url = server_url + reverse(
+            "c2b-confirmation-url"
         )
         mpesa_transaction = MpesaTransaction()
         mpesa_request = mpesa_transaction.register_c2b_urls(
