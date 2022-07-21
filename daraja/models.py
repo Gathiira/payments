@@ -15,9 +15,3 @@ class DarajaAcessToken(models.Model):
 
     def __str__(self):
         return f"{self.token} {self.expires_in} --> {self.date_created}"
-
-
-class Transaction(models.Model):
-    """
-    Store the transaction details
-    """

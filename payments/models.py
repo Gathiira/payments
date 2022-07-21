@@ -120,7 +120,7 @@ class Transaction(models.Model):
         on_delete=models.SET_NULL,
     )
     status = models.CharField(
-        choices=PAYMENT_STATUSES, max_length=15, default=INITIATED
+        choices=PAYMENT_STATUSES, max_length=50, default=INITIATED
     )
     amount = models.PositiveIntegerField()
     error_message = models.TextField(default="")
