@@ -1,3 +1,4 @@
+import logging
 import json
 from datetime import datetime, timedelta
 
@@ -6,6 +7,8 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 from daraja.models import DarajaAcessToken
+
+logger = logging.getLogger(__name__)
 
 
 class MpesaGateway(object):
@@ -40,13 +43,18 @@ class MpesaGateway(object):
                 self.vault.DARAJA_ACCESS_URL,
                 auth=HTTPBasicAuth(consumer_key, consumer_secret),
             )
-            mpesa_access_token = json.loads(req.text)
-            validated_mpesa_token = mpesa_access_token["access_token"]
-            expires_in = int(mpesa_access_token["expires_in"])
-            token_q.token = validated_mpesa_token
-            token_q.expires_in = now + timedelta(seconds=expires_in)
-            token_q.save()
-            return validated_mpesa_token
+            try:
+                mpesa_access_token = json.loads(req.text)
+                validated_mpesa_token = mpesa_access_token["access_token"]
+                expires_in = int(mpesa_access_token["expires_in"])
+                token_q.token = validated_mpesa_token
+                token_q.expires_in = now + timedelta(seconds=expires_in)
+                token_q.save()
+                return validated_mpesa_token
+            except Exception as e:
+                logger.error('response --> %s', req.text)
+                logger.error(e)
+                return ''
 
     def initiate_stk_push(self, payload):
         """

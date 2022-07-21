@@ -9,8 +9,12 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+import os
 
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()  # take environment variables from .env.
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-c2_vm-%7t*j7*a92yusaou2&d8b-)ognbhj@lrf2z*izqn)7py'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True if os.environ.get('DEBUG') == 'True' else False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'daraja.apps.DarajaConfig',
+    'payments.apps.PaymentsConfig',
 ]
 
 MIDDLEWARE = [
@@ -105,7 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Nairobi'
 
 USE_I18N = True
 
@@ -123,3 +129,47 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+API_HOST_NAME = os.environ.get('API_HOST_NAME')
+
+# payment configs
+PAYBILL_NUMBER = 1234
+
+
+min_django_level = 'INFO'
+min_level = 'DEBUG'
+
+LOG_ROOT_DIR = 'payments.log'
+# error logging configs
+# logging dictConfig configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,  # keep Django's default loggers
+    'formatters': {
+        'simple': {
+            'format': '[%(asctime)s] %(levelname)s: %(filename)s, %(funcName)s -line, %(lineno)s -- %(message)s'
+        },
+    },
+    'handlers': {
+        'logfile': {
+            # optionally raise to INFO to not fill the log file too quickly
+            'level': min_level,  # this level or higher goes to the log file
+            'class': 'logging.handlers.RotatingFileHandler',
+            # IMPORTANT: replace with your desired logfile name!
+            'filename': os.path.join(BASE_DIR, LOG_ROOT_DIR),
+            'filename': LOG_ROOT_DIR,
+            'maxBytes': 50 * 10 ** 6,  # will 50 MB do?
+            'backupCount': 3,  # keep this many extra historical files
+            'formatter': 'simple'
+        },
+        'console': {
+            'level': min_level,  # this level or higher goes to the console
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        }
+    },
+    'root': {
+        'handlers': ['console', 'logfile'],
+        'level': min_level,  # this level or higher goes to the console,
+    },
+}
