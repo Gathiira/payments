@@ -144,7 +144,7 @@ LOG_ROOT_DIR = 'payments.log'
 # logging dictConfig configuration
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,  # keep Django's default loggers
+    'disable_existing_loggers': False,  # keep Django's default loggers
     'formatters': {
         'simple': {
             'format': '[%(asctime)s] %(levelname)s: %(filename)s, %(funcName)s -line, %(lineno)s -- %(message)s'

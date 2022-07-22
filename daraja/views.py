@@ -161,9 +161,14 @@ class InitiateStkPushView(views.APIView):
 
         data = serializer.validated_data
         payment_category = "Checkout"
-        payment_method, _ = PaymentMethod.objects.get_or_create(
-            type=PaymentMethod.MOBILE, islog=False
-        )
+        try:
+            payment_method = PaymentMethod.objects.get(code='101MX')
+        except:
+            return Response(
+                {'detail': "Invalid payment method. Kindly load payment method data"},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+
         pay_amount = data["amount"]
         narration = f"Payment for  a transaction {account_number}"
         phone_number = data["phone_number"]

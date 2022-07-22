@@ -1,0 +1,58 @@
+[
+  {
+    "model": "payments.paymentmethod",
+    "pk": 1,
+    "fields": {
+      "name": "Mpesa Express",
+      "code": "101MX",
+      "type": "mobile",
+      "islog": false,
+      "description": "Mpesa Express payment",
+      "target": "To be filled on the fly",
+      "is_active": true,
+      "date_created": "2022-07-20"
+    }
+  },
+  {
+    "model": "payments.paymentmethod",
+    "pk": 2,
+    "fields": {
+      "name": "Mpesa",
+      "code": "102M",
+      "type": "mobile",
+      "islog": true,
+      "description": "Mpesa on delivery payment",
+      "target": "To be filled on the fly",
+      "is_active": true,
+      "date_created": "2022-07-20"
+    }
+  },
+  {
+    "model": "payments.paymentmethod",
+    "pk": 3,
+    "fields": {
+      "name": "Visa",
+      "code": "103V",
+      "type": "card",
+      "islog": true,
+      "description": "Visa payment",
+      "target": "To be filled on the fly",
+      "is_active": true,
+      "date_created": "2022-07-20"
+    }
+  },
+  {
+    "model": "payments.paymentmethod",
+    "pk": 4,
+    "fields": {
+      "name": "MasterCard",
+      "code": "104MC",
+      "type": "card",
+      "islog": true,
+      "description": "MasterCard payment",
+      "target": "To be filled on the fly",
+      "is_active": true,
+      "date_created": "2022-07-20"
+    }
+  }
+]
