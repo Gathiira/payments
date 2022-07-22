@@ -153,6 +153,11 @@ class Transaction(models.Model):
     payment_category = models.CharField(
         max_length=100, null=True, blank=True, choices=PAYMENT_CATEGORIES
     )
+    # mpesa details
+    merchant_id = models.CharField(max_length=50, null=True, blank=True)
+    checkout_request_id = models.CharField(
+        max_length=50, null=True, blank=True)
+
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     last_edited = models.DateTimeField(auto_now=True, null=True)
 

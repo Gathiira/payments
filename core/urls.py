@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-common = 'payment/'
+common = 'transaction/'
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(common, include('daraja.urls'))

@@ -194,7 +194,6 @@ class InitiateStkPushView(views.APIView):
             callback_url = base_url + transaction_url
 
             logger.info(callback_url)
-            # https://dev-api.sky.garden/api/v3/transaction-stkpush/872547/callback/
 
             query_url = reverse(
                 "transaction-stkpush-query-status",
@@ -214,6 +213,7 @@ class InitiateStkPushView(views.APIView):
             mpesa_transaction = MpesaTransaction()
             mpesa_request = mpesa_transaction.lipa_na_mpesa_online(**stk_data)
             response_data = mpesa_request.json()
+            print(response_data)
             logger.info(response_data)
             if mpesa_request.status_code != 200:
                 db_transaction.set_rollback(True)

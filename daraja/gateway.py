@@ -44,6 +44,7 @@ class MpesaGateway(object):
                 auth=HTTPBasicAuth(consumer_key, consumer_secret),
             )
             try:
+                print(req.text)
                 mpesa_access_token = json.loads(req.text)
                 validated_mpesa_token = mpesa_access_token["access_token"]
                 expires_in = int(mpesa_access_token["expires_in"])
