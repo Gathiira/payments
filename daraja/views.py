@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction as db_transaction
 from django.urls import reverse
 from django.utils.crypto import get_random_string
+from django.db.models import F
 
 from utils.loading import get_model
 from rest_framework import status, views
@@ -251,16 +252,36 @@ class InitiateStkPushView(views.APIView):
 
         transaction.refresh_from_db()
         if transaction.status not in ["Successful"]:
-            error_msg = transaction.error_message or "Transaction Failed!!"
+            # check status from safaricom
+            checkout_request_id = transaction.checkout_request_id
+            mpesa_request = mpesa_transaction.query_mpesa_express_transaction_status(
+                checkout_request_id
+            )
+            response = mpesa_request.json()
+            logger.info(response)
+            if mpesa_request.status_code != 200:
+                error_msg = response["errorMessage"]
+                status_code = 400
+            else:
+                error_msg = response["ResultDesc"]
+                status_code = response['ResultCode']
+                # if status_code == 0:
+                #     # process payments
+                #     transaction.amount_paid = transaction.amount
+                #     transaction.last_payment = transaction.amount
+                #     transaction.status = Transaction.SUCCESSFUL
+                #     transaction.save(
+                #         update_fields=['last_payment', 'amount_paid', 'status'])
+
             return Response(
                 {
+                    "status": status_code,
                     "message": error_msg,
                     "query_status_url": status_url,
-                    "amount_paid": 0,
-                },
-                status=status.HTTP_400_BAD_REQUEST,
+                }
             )
         resp = {
+            "status": 200,
             "message": "Transaction successful",
             "query_status_url": status_url,
             "amount_paid": transaction.amount_paid,
@@ -280,10 +301,10 @@ class MpesaStkPushCallbackView(views.APIView):
     ]
 
     def get_permissions(self):
-        if self.request.method in ["GET"]:
-            self.permission_classes = [
-                IsAuthenticated,
-            ]
+        # if self.request.method in ["GET"]:
+        #     self.permission_classes = [
+        #         IsAuthenticated,
+        #     ]
         return super(MpesaStkPushCallbackView, self).get_permissions()
 
     def post(self, request, account_number, *args, **kwargs):

@@ -4,8 +4,8 @@
 
 ## Plan Part 1
 
-- [ ] Authentication Credentials
-- [ ] STK push Integration (Async)
+- [x] Authentication Credentials
+- [x] STK push Integration (Async)
 - [ ] C2B integration
 - [ ] B2C integration (Bulk payments)
 

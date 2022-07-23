@@ -44,7 +44,6 @@ class MpesaGateway(object):
                 auth=HTTPBasicAuth(consumer_key, consumer_secret),
             )
             try:
-                print(req.text)
                 mpesa_access_token = json.loads(req.text)
                 validated_mpesa_token = mpesa_access_token["access_token"]
                 expires_in = int(mpesa_access_token["expires_in"])
@@ -53,7 +52,6 @@ class MpesaGateway(object):
                 token_q.save()
                 return validated_mpesa_token
             except Exception as e:
-                logger.error('response --> %s', req.text)
                 logger.error(e)
                 return ''
 
@@ -92,7 +90,8 @@ class MpesaGateway(object):
         """
         api_url = self.vault.DARAJA_STKPUSH_QUERY_URL
         headers = self._get_access_headers()
-        response = requests.post(api_url, json=payload, headers=headers)
+        response = requests.post(
+            api_url, json=payload, headers=headers, timeout=20)
         return response
 
     def register_c2b_urls(self, payload):

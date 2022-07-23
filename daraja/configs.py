@@ -63,11 +63,11 @@ class DarajaConfigs:
         self.DARAJA_C2B_BUSINESS_SHORT_CODE = (
             os.environ.get("DARAJA_LIVE_BUSINESS_SHORT_CODE")
             if self.is_prod
-            else "600996"
+            else "600999"
         )
 
         self.DARAJA_B2C_BUSINESS_SHORT_CODE = (
             os.environ.get("DARAJA_LIVE_BUSINESS_SHORT_CODE")
             if self.is_prod
-            else "600996"
+            else "600999"
         )
