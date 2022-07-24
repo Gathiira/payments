@@ -5,20 +5,19 @@ from threading import Thread
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction as db_transaction
+from django.db.models import F
 from django.urls import reverse
 from django.utils.crypto import get_random_string
-from django.db.models import F
 
-from utils.loading import get_model
 from rest_framework import status, views
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from daraja.facade import MpesaTransaction
-from utils.core import validate_phone_number
-from payments.utils import PaymentProcessor
 from daraja.serializers import StkPushSerializer
-
+from payments.utils import PaymentProcessor
+from utils.core import validate_phone_number
+from utils.loading import get_model
 
 PaymentMethod = get_model("payments", "PaymentMethod")
 Transaction = get_model("payments", "Transaction")
@@ -98,8 +97,7 @@ def update_transaction_details(account_number, payload):
 
     if transaction_success:
         pay_status = Transaction.SUCCESSFUL
-        items = get_data_from_mpesa_items(
-            stkcallbackdata["CallbackMetadata"]["Item"])
+        items = get_data_from_mpesa_items(stkcallbackdata["CallbackMetadata"]["Item"])
         paid_amount = items["Amount"]
         provider_ref = items["MpesaReceiptNumber"]
         error_msg = stkcallbackdata["ResultDesc"]
@@ -134,8 +132,7 @@ def update_transaction_details(account_number, payload):
 
 
 def create_transaction_instance(**kwargs):
-    method = PaymentMethod.objects.filter(
-        type=PaymentMethod.MOBILE, islog=True).first()
+    method = PaymentMethod.objects.filter(type=PaymentMethod.MOBILE, islog=True).first()
     data = get_transaction_payload(amount=kwargs["amount"], method=method)
     with db_transaction.atomic():
         transaction = PaymentProcessor.create_transaction_model(
@@ -163,11 +160,12 @@ class InitiateStkPushView(views.APIView):
         data = serializer.validated_data
         payment_category = "Checkout"
         try:
-            payment_method = PaymentMethod.objects.get(code='101MX')
-        except:
+            payment_method = PaymentMethod.objects.get(code="101MX")
+        except Exception as e:
+            logger.error(e)
             return Response(
-                {'detail': "Invalid payment method. Kindly load payment method data"},
-                status=status.HTTP_405_METHOD_NOT_ALLOWED
+                {"detail": "Invalid payment method. Kindly load payment method data"},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED,
             )
 
         pay_amount = data["amount"]
@@ -229,8 +227,7 @@ class InitiateStkPushView(views.APIView):
                 )
             transaction.merchant_id = response_data["MerchantRequestID"]
             transaction.checkout_request_id = response_data["CheckoutRequestID"]
-            transaction.save(
-                update_fields=["merchant_id", "checkout_request_id"])
+            transaction.save(update_fields=["merchant_id", "checkout_request_id"])
 
         # wait for mpesa transactions to happen and return appropriate response
         # max wait is 90 sec with 10 loops. Then return a failed response
@@ -264,7 +261,7 @@ class InitiateStkPushView(views.APIView):
                 status_code = 400
             else:
                 error_msg = response["ResultDesc"]
-                status_code = response['ResultCode']
+                status_code = response["ResultCode"]
                 # if status_code == 0:
                 #     # process payments
                 #     transaction.amount_paid = transaction.amount
@@ -371,8 +368,7 @@ class MpesaStkPushCallbackView(views.APIView):
 
         """
         try:
-            transaction = Transaction.objects.get(
-                account_number=account_number)
+            transaction = Transaction.objects.get(account_number=account_number)
         except ObjectDoesNotExist:
             return Response(
                 {"message": "Invalid Transaction", "amount": 0},
@@ -424,11 +420,8 @@ class MpesaRegisterUrlView(views.APIView):
     def post(self, request, *args, **kwargs):
         # _payload = request.data
         server_url = settings.API_HOST_NAME
-        validation_url = server_url + \
-            reverse("c2b-validation-url")
-        confirmation_url = server_url + reverse(
-            "c2b-confirmation-url"
-        )
+        validation_url = server_url + reverse("c2b-validation-url")
+        confirmation_url = server_url + reverse("c2b-confirmation-url")
         mpesa_transaction = MpesaTransaction()
         mpesa_request = mpesa_transaction.register_c2b_urls(
             confirmation_url, validation_url

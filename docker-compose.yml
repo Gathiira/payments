@@ -43,5 +43,3 @@ services:
       - payment
 volumes:
   postgres_data:
-
-

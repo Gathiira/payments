@@ -1,31 +1,27 @@
-
 from django.urls import path
 
 from search.views import (
+    PaymentMethodDetailView,
     SearchPaymentMethodView,
     SearchTransactionView,
-    PaymentMethodDetailView,
-    TransactionDetailView
+    TransactionDetailView,
 )
+
 urlpatterns = [
     path(
-        'payment-methods/',
+        "payment-methods/",
         SearchPaymentMethodView.as_view(),
-        name='search-payment-methods'
+        name="search-payment-methods",
     ),
     path(
-        'payment-method/<str:query>/',
+        "payment-method/<str:query>/",
         PaymentMethodDetailView.as_view(),
-        name='search-payment-methods'
+        name="search-payment-methods",
     ),
+    path("transactions/", SearchTransactionView.as_view(), name="search-transactions"),
     path(
-        'transactions/',
-        SearchTransactionView.as_view(),
-        name='search-transactions'
-    ),
-    path(
-        'transaction/<str:query>/',
+        "transaction/<str:query>/",
         TransactionDetailView.as_view(),
-        name='search-transactions'
+        name="search-transactions",
     ),
 ]

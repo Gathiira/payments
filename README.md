@@ -17,4 +17,3 @@
 ## Part 3
 
 - [ ] Card Integration
-  

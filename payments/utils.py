@@ -1,11 +1,11 @@
-from utils.loading import get_model
 from django.utils.crypto import get_random_string
 
-Transaction = get_model('payments', 'Transaction')
+from utils.loading import get_model
+
+Transaction = get_model("payments", "Transaction")
 
 
 class PaymentProcessor:
-
     @staticmethod
     def create_transaction_model(data):
         txn = Transaction()
@@ -23,7 +23,7 @@ class PaymentProcessor:
         txn.payment_code = data["payment_code"]
         txn.transaction_is_log = data["islog"]
         txn.payment_method_name = data["payment_method_name"]
-        txn.account_number = data['account_number']
+        txn.account_number = data["account_number"]
 
         if data["transaction_type"] == Transaction.CARDS:
             txn.first_name = data["first_name"]

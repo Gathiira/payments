@@ -1,15 +1,14 @@
-
 import abc
 import logging
 
-from rest_framework.response import Response
-from rest_framework import status
 from elasticsearch_dsl import Q
+from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from payments.serializers import TransactionSerializer, PaymentMethodSerializer
-from payments.documents import TransactionDocument, PaymentMethodDocument
+from payments.documents import PaymentMethodDocument, TransactionDocument
+from payments.serializers import PaymentMethodSerializer, TransactionSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +31,7 @@ class ElasticSearchAPIView(APIView):
                 search = self.document_class.search()
             response = search.execute()
 
-            print(
-                f'Found {response.hits.total.value} hit(s) for query: "{query}"')
+            print(f'Found {response.hits.total.value} hit(s) for query: "{query}"')
             if paginate:
                 results = self.paginate_queryset(response, request, view=self)
                 serializer = self.serializer_class(results, many=True)
@@ -47,7 +45,8 @@ class ElasticSearchAPIView(APIView):
             logger.error(e)
             return Response(
                 {"detail": "Failed to query Transaction. Contact Support!"},
-                status=status.HTTP_400_BAD_REQUEST)
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class SearchPaymentMethodView(ElasticSearchAPIView, LimitOffsetPagination):
@@ -55,15 +54,10 @@ class SearchPaymentMethodView(ElasticSearchAPIView, LimitOffsetPagination):
     document_class = PaymentMethodDocument
 
     def generate_q_expression(self, query):
-        return Q(
-            'multi_match', query=query,
-            fields=[
-                'name',
-                'code'
-            ], fuzziness='auto')
+        return Q("multi_match", query=query, fields=["name", "code"], fuzziness="auto")
 
     def get(self, request):
-        query = request.query_params.get('filter')
+        query = request.query_params.get("filter")
         return self.get_search_queryset(request, query)
 
 
@@ -73,19 +67,21 @@ class SearchTransactionView(ElasticSearchAPIView, LimitOffsetPagination):
 
     def generate_q_expression(self, query):
         return Q(
-            'multi_match', query=query,
+            "multi_match",
+            query=query,
             fields=[
-                'account_number',
-                'provider',
-                'phone_number',
-                'narration',
-                'amount',
-                'payment_category',
-                'first_name',
-            ])
+                "account_number",
+                "provider",
+                "phone_number",
+                "narration",
+                "amount",
+                "payment_category",
+                "first_name",
+            ],
+        )
 
     def get(self, request):
-        query = request.query_params.get('filter')
+        query = request.query_params.get("filter")
         return self.get_search_queryset(request, query)
 
 
@@ -94,10 +90,13 @@ class PaymentMethodDetailView(ElasticSearchAPIView):
     document_class = PaymentMethodDocument
 
     def generate_q_expression(self, query):
-        return Q('bool',
-                 should=[
-                     Q('match', id=query),
-                 ], minimum_should_match=1)
+        return Q(
+            "bool",
+            should=[
+                Q("match", id=query),
+            ],
+            minimum_should_match=1,
+        )
 
     def get(self, request, query):
         return self.get_search_queryset(request, query, paginate=False)
@@ -108,11 +107,14 @@ class TransactionDetailView(ElasticSearchAPIView):
     document_class = TransactionDocument
 
     def generate_q_expression(self, query):
-        return Q('bool',
-                 should=[
-                     Q('match', id=query),
-                     Q('match', account_number=query),
-                 ], minimum_should_match=1)
+        return Q(
+            "bool",
+            should=[
+                Q("match", id=query),
+                Q("match", account_number=query),
+            ],
+            minimum_should_match=1,
+        )
 
     def get(self, request, query):
         return self.get_search_queryset(request, query, paginate=False)
