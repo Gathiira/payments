@@ -174,6 +174,20 @@ class Transaction(models.Model):
                 break
         return ref
 
+    def provider_to_string(self):
+        if self.provider == '702':
+            return 'MPESA'
+        elif self.provider == '700':
+            return 'Telkom cash'
+        elif self.provider == '710':
+            return 'Airtell Money'
+        elif self.provider == 'MCK':
+            return 'Mastercard Kenya'
+        elif self.provider == 'VCK':
+            return 'Visa Kenya'
+        else:
+            return self.provider
+
     def save(self, *args, **kwargs):
         if not self.transaction_ref:
             self.transaction_ref = self._get_unique_ref()

@@ -41,8 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_elasticsearch_dsl',
     'daraja.apps.DarajaConfig',
     'payments.apps.PaymentsConfig',
+    'search.apps.SearchConfig',
 ]
 
 MIDDLEWARE = [
@@ -171,4 +173,20 @@ LOGGING = {
         'handlers': ['console', 'logfile'],
         'level': min_level,  # this level or higher goes to the console,
     },
+}
+
+# Elasticsearch
+# https://django-elasticsearch-dsl.readthedocs.io/en/latest/settings.html
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'localhost:9200'
+    },
+}
+
+# rest framework pagination
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 25
 }

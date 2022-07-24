@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  payment:
+    build: .
+    image: payment_service_image:latest
+    command: bash -c "python3 manage.py runserver 0.0.0.0:5606"
+    env_file:
+      - ./.env
+    deploy:
+      update_config:
+        parallelism: 1
+        max_failure_ratio: 0
+        delay: 3s
+        failure_action: rollback
+      restart_policy:
+        max_attempts: 3
+        condition: on-failure
+      replicas: 1
+    volumes:
+      - .:/app
+    depends_on:
+      - postgresdb
+  postgresdb:
+    image: postgres:13.0-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin123
+      - POSTGRES_DB=payment
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    depends_on:
+      - payment
+volumes:
+  postgres_data:
+
+
