@@ -1,5 +1,5 @@
-import logging
 import json
+import logging
 from datetime import datetime, timedelta
 
 import pytz
@@ -34,8 +34,7 @@ class MpesaGateway(object):
         consumer_secret = self.vault.DARAJA_CONSUMER_SECRET
 
         now = datetime.now(pytz.timezone("Africa/Nairobi"))
-        token_q, _ = DarajaAcessToken.objects.get_or_create(
-            code="DARAJA_ACCESS_TOKEN")
+        token_q, _ = DarajaAcessToken.objects.get_or_create(code="DARAJA_ACCESS_TOKEN")
         if token_q and bool(token_q.expires_in) and token_q.expires_in > now:
             return token_q.token
         else:
@@ -52,9 +51,8 @@ class MpesaGateway(object):
                 token_q.save()
                 return validated_mpesa_token
             except Exception as e:
-                logger.error('response --> %s', req.text)
                 logger.error(e)
-                return ''
+                return ""
 
     def initiate_stk_push(self, payload):
         """
@@ -91,7 +89,7 @@ class MpesaGateway(object):
         """
         api_url = self.vault.DARAJA_STKPUSH_QUERY_URL
         headers = self._get_access_headers()
-        response = requests.post(api_url, json=payload, headers=headers)
+        response = requests.post(api_url, json=payload, headers=headers, timeout=20)
         return response
 
     def register_c2b_urls(self, payload):

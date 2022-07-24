@@ -7,10 +7,9 @@ from threading import Thread
 from django.conf import settings
 from django.urls import reverse
 
-from utils.loading import get_model
-
 from daraja.configs import DarajaConfigs
 from daraja.gateway import MpesaGateway
+from utils.loading import get_model
 
 Transaction = get_model("payments", "Transaction")
 TransactionLog = get_model("payments", "TransactionLog")
@@ -129,15 +128,13 @@ class MpesaTransaction(object):
                 )
             )
             transaction.save(
-                update_fields=["instruction_to_customer",
-                               "error_message", "status"]
+                update_fields=["instruction_to_customer", "error_message", "status"]
             )
             return transaction
         else:
             transaction.merchant_id = response_data["MerchantRequestID"]
             transaction.checkout_request_id = response_data["CheckoutRequestID"]
-            transaction.save(
-                update_fields=["merchant_id", "checkout_request_id"])
+            transaction.save(update_fields=["merchant_id", "checkout_request_id"])
 
             # wait for mpesa transactions to happen and return appropriate response
             # max wait is 90 sec with 10 loops. Then return a failed response

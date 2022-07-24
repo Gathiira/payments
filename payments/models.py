@@ -1,7 +1,7 @@
-from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.translation import ugettext_lazy as _
+from django.db import models
 from django.utils.crypto import get_random_string
+from django.utils.translation import ugettext_lazy as _
 
 # Create your models here.
 
@@ -24,10 +24,8 @@ class PaymentMethod(models.Model):
         (MOBILE, _("Mobile Payment")),
         (CARD, _("Card Payment")),
     )
-    name = models.CharField(
-        max_length=50, help_text="Name of the payment method")
-    code = models.CharField(
-        max_length=10, help_text="Code to id this method")
+    name = models.CharField(max_length=50, help_text="Name of the payment method")
+    code = models.CharField(max_length=10, help_text="Code to id this method")
     type = models.CharField(
         max_length=24,
         help_text="Type of payment method being used",
@@ -56,6 +54,7 @@ class Transaction(models.Model):
     Arguments:
         models {[type]} -- [description]
     """
+
     INITIATED, PENDING, FAILED = "Initiated", "Pending", "Failed"
     SUCCESSFUL, CANCELLED, REVERSED = "Successful", "Cancelled", "Reversed"
     FAILEDCOMPLETELY, RETRYING = "Failed Completely", "Retrying"
@@ -153,6 +152,10 @@ class Transaction(models.Model):
     payment_category = models.CharField(
         max_length=100, null=True, blank=True, choices=PAYMENT_CATEGORIES
     )
+    # mpesa details
+    merchant_id = models.CharField(max_length=50, null=True, blank=True)
+    checkout_request_id = models.CharField(max_length=50, null=True, blank=True)
+
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     last_edited = models.DateTimeField(auto_now=True, null=True)
 
@@ -164,10 +167,24 @@ class Transaction(models.Model):
             length = 20
             ref = get_random_string(length)
             try:
-                txn = Transaction.objects.get(transaction_ref=ref)
+                Transaction.objects.get(transaction_ref=ref)
             except ObjectDoesNotExist:
                 break
         return ref
+
+    def provider_to_string(self):
+        if self.provider == "702":
+            return "MPESA"
+        elif self.provider == "700":
+            return "Telkom cash"
+        elif self.provider == "710":
+            return "Airtell Money"
+        elif self.provider == "MCK":
+            return "Mastercard Kenya"
+        elif self.provider == "VCK":
+            return "Visa Kenya"
+        else:
+            return self.provider
 
     def save(self, *args, **kwargs):
         if not self.transaction_ref:
@@ -179,6 +196,7 @@ class TransactionLog(models.Model):
     """
     Logs
     """
+
     json_data = models.JSONField()
     date_created = models.DateTimeField(auto_now_add=True)
 

@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
-
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()  # take environment variables from .env.
@@ -24,65 +24,67 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True if os.environ.get('DEBUG') == 'True' else False
+DEBUG = True if os.environ.get("DEBUG") == "True" else False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'daraja.apps.DarajaConfig',
-    'payments.apps.PaymentsConfig',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django_elasticsearch_dsl",
+    "daraja.apps.DarajaConfig",
+    "payments.apps.PaymentsConfig",
+    "search.apps.SearchConfig",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'core.urls'
+ROOT_URLCONF = "core.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'core.wsgi.application'
+WSGI_APPLICATION = "core.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -92,16 +94,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -109,9 +111,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'Africa/Nairobi'
+TIME_ZONE = "Africa/Nairobi"
 
 USE_I18N = True
 
@@ -123,53 +125,66 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-API_HOST_NAME = os.environ.get('API_HOST_NAME')
+API_HOST_NAME = os.environ.get("API_HOST_NAME")
 
 # payment configs
 PAYBILL_NUMBER = 1234
 
 
-min_django_level = 'INFO'
-min_level = 'DEBUG'
+min_django_level = "INFO"
+min_level = "DEBUG"
 
-LOG_ROOT_DIR = 'payments.log'
+LOG_ROOT_DIR = "payments.log"
 # error logging configs
 # logging dictConfig configuration
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,  # keep Django's default loggers
-    'formatters': {
-        'simple': {
-            'format': '[%(asctime)s] %(levelname)s: %(filename)s, %(funcName)s -line, %(lineno)s -- %(message)s'
+    "version": 1,
+    "disable_existing_loggers": False,  # keep Django's default loggers
+    "formatters": {
+        "simple": {
+            "format": "[%(asctime)s] %(levelname)s: %(filename)s, %(funcName)s -line, %(lineno)s -- %(message)s"
         },
     },
-    'handlers': {
-        'logfile': {
+    "handlers": {
+        "logfile": {
             # optionally raise to INFO to not fill the log file too quickly
-            'level': min_level,  # this level or higher goes to the log file
-            'class': 'logging.handlers.RotatingFileHandler',
+            "level": min_level,  # this level or higher goes to the log file
+            "class": "logging.handlers.RotatingFileHandler",
             # IMPORTANT: replace with your desired logfile name!
-            'filename': os.path.join(BASE_DIR, LOG_ROOT_DIR),
-            'filename': LOG_ROOT_DIR,
-            'maxBytes': 50 * 10 ** 6,  # will 50 MB do?
-            'backupCount': 3,  # keep this many extra historical files
-            'formatter': 'simple'
+            "filename": os.path.join(BASE_DIR, LOG_ROOT_DIR),
+            "maxBytes": 50 * 10**6,  # will 50 MB do?
+            "backupCount": 2,  # keep this many extra historical files
+            "formatter": "simple",
         },
-        'console': {
-            'level': min_level,  # this level or higher goes to the console
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
-        }
+        "console": {
+            "level": min_level,  # this level or higher goes to the console
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
     },
-    'root': {
-        'handlers': ['console', 'logfile'],
-        'level': min_level,  # this level or higher goes to the console,
+    "root": {
+        "handlers": ["console", "logfile"],
+        "level": min_level,  # this level or higher goes to the console,
     },
+}
+
+# Elasticsearch
+# https://django-elasticsearch-dsl.readthedocs.io/en/latest/settings.html
+
+ELASTICSEARCH_DSL = {
+    "default": {"hosts": "localhost:9200"},
+}
+
+# rest framework pagination
+
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 25,
 }

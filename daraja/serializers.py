@@ -1,4 +1,5 @@
 import imp
+
 from rest_framework import serializers
 
 from utils.core import validate_phone_number
@@ -13,6 +14,5 @@ class StkPushSerializer(serializers.Serializer):
         # validate phone_number
         valid_number = validate_phone_number(phone_number)
         if not valid_number:
-            raise serializers.ValidationError(
-                "Kindly add a valid phone number")
+            raise serializers.ValidationError("Kindly add a valid phone number")
         return valid_number
