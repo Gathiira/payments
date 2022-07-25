@@ -1,12 +1,28 @@
-# Daraja Integration using Django 3.2
+# Payment Integration using Django 3.2
 
-- This is an mpesa integration generic APIs
+- This is payment integration generic APIs
+- Target Third Parties
+  - [ ] Safaricom: Daraja
+    - To process mobile money payments
+  - [ ] Cellulant: Tingg
+    - To process Card payments
 
-## Plan Part 1
+## WorkFlow
+
+The major stages or Integrations done
+
+## Part 1
+
+[Daraja Integration](https://developer.safaricom.co.ke/)
 
 - [x] Authentication Credentials
 - [x] STK push Integration (Async)
-- [ ] C2B integration
+  - [x] Initiate stkpush API
+  - [x] callback url
+- [x] C2B integration
+  - [x] register urls
+  - [x] validation url
+  - [x] confirmation url
 - [ ] B2C integration (Bulk payments)
 
 ## Part 2
@@ -23,7 +39,7 @@
 
 ## Part 4
 
-- [ ] Card Integration
+- [ ] Card Integration ([Tingg](https://tingg.africa/))
 
 ## Git Precommit Hook
 
@@ -69,7 +85,7 @@ DARAJA_LIVE_STKPUSH_URL=<https://api.safaricom.co.ke/mpesa/stkpush/v1/processreq
 DARAJA_LIVE_STKPUSH_QUERY_URL=<https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query>
 DARAJA_LIVE_C2B_REGISTER_URL=<https://api.safaricom.co.ke/mpesa/c2b/v1/registerurl>
 
-## ting test configs
+## tinng test configs
 
 TINNG_ACCESS_KEY=key
 TINNG_ACCESS_SECRET=secret
