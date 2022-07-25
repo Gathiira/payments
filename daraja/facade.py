@@ -88,7 +88,7 @@ class MpesaTransaction(object):
             Content-Type: application/json
             [Other HTTP headers]...
              {
-                "callbackurl": 'sky garden callback',
+                "callbackurl": 'callback',
                 "accountref": 'order',
                 "transaction_desc": 'order checkout',
                 "amount": 10,
@@ -96,7 +96,7 @@ class MpesaTransaction(object):
             }
         """
         # build callback url
-        base_url = settings.SKYGARDEN_API_HOST_NAME
+        base_url = settings.API_HOST_NAME
         transaction_url = reverse(
             "transaction-stkpush-callback",
             kwargs={"account_number": transaction.account_number},
@@ -104,7 +104,6 @@ class MpesaTransaction(object):
         callback_url = base_url + transaction_url
 
         logger.info(callback_url)
-        # https://dev-api.sky.garden/api/v3/transaction-stkpush/872547/callback/
 
         stk_data = {
             "callbackurl": callback_url,
@@ -123,7 +122,7 @@ class MpesaTransaction(object):
                 "Payment Initiated. Please pay via {} to paybill number"
                 " {} account number {}".format(
                     transaction.payment_method_name,
-                    settings.SKYGARDEN_PAYBILL_NUMBER,
+                    settings.PAYBILL_NUMBER,
                     transaction.account_number,
                 )
             )
