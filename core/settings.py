@@ -178,8 +178,11 @@ LOGGING = {
 # Elasticsearch
 # https://django-elasticsearch-dsl.readthedocs.io/en/latest/settings.html
 
+ELASTIC_USERNAME = os.environ.get("ELASTIC_USERNAME")
+ELASTIC_PASSWORD = os.environ.get("ELASTIC_PASSWORD")
+
 ELASTICSEARCH_DSL = {
-    "default": {"hosts": "localhost:9200"},
+    "default": {"hosts": f"{ELASTIC_USERNAME}:{ELASTIC_PASSWORD}@localhost:9200"},
 }
 
 # rest framework pagination
