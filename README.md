@@ -27,6 +27,7 @@ The major stages or Integrations done
 
 ## Part 2
 
+- [x] Dockerize the app. using [Dockerfile](./Dockerfile) and [docker-compose](./docker-compose.yml)
 - [ ] Slack Integration
 
 ## Part 3
@@ -37,7 +38,12 @@ The major stages or Integrations done
   - [Kibana Configs](https://stackoverflow.com/questions/69791608/unable-to-retrieve-version-information-from-elasticsearch-nodes-request-timed-o)
 - [ ] Analytics
 
-## Part 4
+## Part 4 (CI/CD)
+
+- [ ] github actions
+- [ ] Kubernetes Configuration
+
+## Part 5
 
 - [ ] Card Integration ([Tingg](https://tingg.africa/))
 
