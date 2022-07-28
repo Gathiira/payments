@@ -1,5 +1,6 @@
 django==3.2.14
 django-elasticsearch-dsl==7.2.2
+django-slack==5.17.8
 djangorestframework==3.13.1
 elasticsearch==7.14.0
 elasticsearch-dsl==7.4.0

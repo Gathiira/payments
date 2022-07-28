@@ -1,0 +1,21 @@
+{% extends django_slack %}
+
+{% load django_slack %}
+{% block channel %} #transactions {% endblock %}
+{% block text %}
+*Payment Transaction*: 
+Transaction Reference - *{{transaction.transaction_ref}}* 
+Provider Reference - *{{transaction.provider_reference}}* 
+Transaction Status - *{{transaction.status}}* 
+Amount to be Paid - *{{transaction.currency}}.{{transaction.amount}}* 
+Amount Paid - *{{transaction.currency}}.{{transaction.amount_paid}}*
+Account Number - *{{transaction.account_number}}*
+Phone Number - *{{transaction.phone_number}}*
+Payment Method - *{{transaction.method.name}}*
+Payment Category - *{{transaction.payment_category}}*
+Payment Response - *{{transaction.error_message}}*
+Payment Narration - *{{transaction.narration}}*
+Customer Name - *{{transaction.first_name}}*
+Date of Payment - *{{transaction.date_created}}*
+
+{% endblock %}

@@ -18,7 +18,7 @@ from django.urls import include, path
 
 common = "transaction/"
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("/", admin.site.urls),
     path(common, include("daraja.urls")),
     path("search/", include("search.urls")),
 ]

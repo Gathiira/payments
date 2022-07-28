@@ -41,10 +41,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django_elasticsearch_dsl",
+    # "django_elasticsearch_dsl",
     "daraja.apps.DarajaConfig",
     "payments.apps.PaymentsConfig",
     "search.apps.SearchConfig",
+    "django_slack",
 ]
 
 MIDDLEWARE = [
@@ -62,7 +63,7 @@ ROOT_URLCONF = "core.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -152,6 +153,11 @@ LOGGING = {
             "format": "[%(asctime)s] %(levelname)s: %(filename)s, %(funcName)s -line, %(lineno)s -- %(message)s"
         },
     },
+    "filters": {
+        "require_debug_false": {
+            "()": "django.utils.log.RequireDebugFalse",
+        },
+    },
     "handlers": {
         "logfile": {
             # optionally raise to INFO to not fill the log file too quickly
@@ -168,9 +174,14 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "simple",
         },
+        "slack_admins": {
+            "level": "ERROR",
+            "filters": ["require_debug_false"],
+            "class": "django_slack.log.SlackExceptionHandler",
+        },
     },
     "root": {
-        "handlers": ["console", "logfile"],
+        "handlers": ["console", "logfile", "slack_admins"],
         "level": min_level,  # this level or higher goes to the console,
     },
 }
@@ -191,3 +202,10 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 25,
 }
+
+
+# slack configs
+SLACK_BACKEND = "django_slack.backends.RequestsBackend"
+SLACK_TOKEN = "xoxb-3862193632019-3847935479447-yBfXAlIRiLQ77Q2Gr3Hv54mR"
+SLACK_CHANNEL = "#transactions"
+SLACK_USERNAME = "paymentbot"

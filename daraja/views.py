@@ -15,6 +15,7 @@ from rest_framework.response import Response
 
 from daraja.facade import MpesaTransaction
 from daraja.serializers import StkPushSerializer
+from payments.slack import send_slack_message
 from payments.utils import PaymentProcessor
 from utils.core import validate_phone_number
 from utils.loading import get_model
@@ -27,6 +28,9 @@ logger = logging.getLogger(__name__)
 
 
 def generate_account_number():
+    """
+    generate sample account number for a transaction
+    """
     seed = "".join(str(x) for x in range(10))
     while True:
         account_number = get_random_string(6, seed)
@@ -69,6 +73,9 @@ def get_transaction_payload(amount, method, number=None):
 
 
 def get_data_from_mpesa_items(items):
+    """
+    reformat payload data from daraja
+    """
     results = {}
     for item in items:
         if item["Name"] == "Amount":
@@ -81,6 +88,9 @@ def get_data_from_mpesa_items(items):
 
 
 def update_transaction_details(account_number, payload):
+    """
+    update transaction with callback data from daraja
+    """
     try:
         transaction = Transaction.objects.get(account_number=account_number)
     except ObjectDoesNotExist:
@@ -248,6 +258,10 @@ class InitiateStkPushView(views.APIView):
         async_wait.join()
 
         transaction.refresh_from_db()
+
+        # send slack message
+        send_slack_message(transaction)
+
         if transaction.status not in ["Successful"]:
             # check status from safaricom
             checkout_request_id = transaction.checkout_request_id
