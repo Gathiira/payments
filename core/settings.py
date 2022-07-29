@@ -206,6 +206,6 @@ REST_FRAMEWORK = {
 
 # slack configs
 SLACK_BACKEND = "django_slack.backends.RequestsBackend"
-SLACK_TOKEN = "xoxb-3862193632019-3847935479447-yBfXAlIRiLQ77Q2Gr3Hv54mR"
-SLACK_CHANNEL = "#transactions"
-SLACK_USERNAME = "paymentbot"
+SLACK_TOKEN = os.environ.get("SLACK_TOKEN")
+SLACK_CHANNEL = os.environ.get("SLACK_CHANNEL")
+SLACK_USERNAME = os.environ.get("SLACK_USERNAME")
