@@ -103,3 +103,8 @@ ELASTIC_PASSWORD = pass
 
 KIBANA_ELK_USER = kibana_system
 KIBANA_ELK_PASSWORD = pass
+
+## More Ideas
+
+- Wallet - Withdraw/ Topup
+- Points - Earn/ redeem
